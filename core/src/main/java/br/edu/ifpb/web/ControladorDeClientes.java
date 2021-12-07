@@ -2,10 +2,11 @@ package br.edu.ifpb.web;
 
 import br.edu.ifpb.domain.Cliente;
 import br.edu.ifpb.domain.Clientes;
-import br.edu.ifpb.infra.ClientesEmJDBC;
-import br.edu.ifpb.infra.ClientesEmMemoria;
+import br.edu.ifpb.service.ListaDeClientes;
+import br.edu.ifpb.service.NovoCliente;
 import java.io.IOException;
 import java.io.PrintWriter;
+import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -20,7 +21,13 @@ import javax.servlet.http.HttpServletResponse;
 public class ControladorDeClientes extends HttpServlet {
 
 //    private Clientes service = new ClientesEmMemoria();
-    private Clientes service = new ClientesEmJDBC();
+//    @EJB
+//    @Inject
+//    private Clientes service;// = new ClientesEmJDBC();
+    @Inject
+    private ListaDeClientes clientes;
+    @Inject
+    private NovoCliente novoCliente;
 
     // Listar todos os clientes
     @Override
@@ -34,7 +41,7 @@ public class ControladorDeClientes extends HttpServlet {
             out.println("<title>Servlet ControladorDeClientes</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1> </h1>");
+            out.println("<h1> Listagem com Stateless</h1>");
             listarClientes(out);
             out.println("</body>");
             out.println("</html>");
@@ -48,13 +55,13 @@ public class ControladorDeClientes extends HttpServlet {
         String cpf = request.getParameter("cpf");
         String nome = request.getParameter("nome");
         Cliente cliente = new Cliente(cpf,nome);
-        this.service.novo(cliente);
+        this.novoCliente.novo(cliente);
         response.sendRedirect("clientes");
     }
 
     private void listarClientes(final PrintWriter out) {
-        this.service
-            .todos()
+        this.clientes
+            .todoOsClientes()
             .forEach(c-> 
                 out.println("<p>" + c.getNome() + "</p>")
             );

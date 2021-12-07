@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface Clientes {
 
-    void novo(Cliente cliente);
+    Cliente novo(Cliente cliente);
 
     List<Cliente> todos();
 

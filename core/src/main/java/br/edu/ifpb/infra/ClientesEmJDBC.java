@@ -2,6 +2,10 @@ package br.edu.ifpb.infra;
 
 import br.edu.ifpb.domain.Cliente;
 import br.edu.ifpb.domain.Clientes;
+
+import javax.annotation.Resource;
+import javax.ejb.Stateless;
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -13,42 +17,39 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ClientesEmJDBC implements Clientes {
+@Stateless
+public class ClientesEmJDBC implements Clientes { //gerenciada pelo servidor de aplicação
 
-    private Connection connection;
-
-    public ClientesEmJDBC() {
-        try {
-            Class.forName("org.postgresql.Driver");
-            this.connection = DriverManager.getConnection(
-                "jdbc:postgresql://host-banco:5432/clientes",
-                "job","123"
-            );
-        } catch (ClassNotFoundException | SQLException ex) {
-            Logger.getLogger(ClientesEmJDBC.class.getName()).log(Level.SEVERE,null,ex);
-        }
-
-    }
+    @Resource(lookup = "java:app/jdbc/pgadmin")
+//    @Resource(lookup = "jdbc/aula")
+    private DataSource dataSource;
 
     @Override
-    public void novo(Cliente cliente) {
+    public Cliente novo(Cliente cliente) {
         try {
-            PreparedStatement statement = connection.prepareStatement(
+            PreparedStatement statement = this.dataSource
+            .getConnection()
+            .prepareStatement(
                 "INSERT INTO clientes (cpf, nome) VALUES(?,?) "
             );
             statement.setString(1,cliente.getCpf());
             statement.setString(2,cliente.getNome());
-            statement.executeUpdate();
+            ResultSet result = statement.executeQuery();
+             if(result.next()) 
+            return criarCliente(result);
         } catch (SQLException ex) {
             Logger.getLogger(ClientesEmJDBC.class.getName()).log(Level.SEVERE,null,ex);
         }
+        return new Cliente();
     }
 
     @Override
     public List<Cliente> todos() {
         try {
             List<Cliente> lista = new ArrayList<>();
-            ResultSet result = connection.prepareStatement(
+            ResultSet result = this.dataSource
+            .getConnection()
+            .prepareStatement(
                     "SELECT * FROM clientes"
             ).executeQuery();
             while (result.next()) {

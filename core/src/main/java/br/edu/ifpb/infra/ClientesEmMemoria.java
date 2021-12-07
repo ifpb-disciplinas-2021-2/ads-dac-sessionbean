@@ -11,8 +11,10 @@ public class ClientesEmMemoria implements Clientes {
     private List<Cliente> clientes = new ArrayList<>();
 
     @Override
-    public void novo(Cliente cliente) {
+    public Cliente novo(Cliente cliente) {
         this.clientes.add(cliente);
+        cliente.setId(clientes.size());
+        return cliente;
     }
 
     @Override
