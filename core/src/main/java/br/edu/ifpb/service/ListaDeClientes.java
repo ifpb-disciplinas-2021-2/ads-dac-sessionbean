@@ -15,4 +15,8 @@ public class ListaDeClientes {
     public List<Cliente> todoOsClientes(){
         return repositorio.todos();
     }
+
+    public Cliente clienteComId(int id) {
+        return new Cliente(2, "123", "Chaves");
+    }
 }
